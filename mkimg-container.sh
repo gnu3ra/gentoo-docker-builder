@@ -23,6 +23,7 @@ RTROOT=/tmp/work/${BASENAME}-rt-${TAG}
 sed -i -e '/^USE=/ d' /etc/portage/make.conf
 cat >> /etc/portage/make.conf <<EOF
 FEATURES="buildpkg"
+USE="-bindist"
 GENTOO_MIRRORS="http://mirror.internode.on.net/pub/gentoo"
 EOF
 
