@@ -92,7 +92,8 @@ ROOT=${RTROOT} emerge ${EMERGE_OPTS} -eKuDN1 \
 	'sys-apps/which' \
 	'virtual/libc' \
 	'virtual/package-manager' \
-	'virtual/service-manager'
+	'virtual/service-manager' \
+	'sys-apps/util-linux'
 
 # Clean up, because Portage ignores INSTALL_MASK sometimes.
 rm -frv ${RTROOT}/usr/include ${RTROOT}/usr/share/man ${RTROOT}/usr/share/info ${RTROOT}/usr/share/doc
