@@ -32,11 +32,15 @@ layman -a musl
 
 emerge -evkuDN ${EMERGE_OPTS} @system @world
 
-# Clean up old root
+# Clean up root, set up new packages
 for root in ${DEVROOT} ${RTROOT}; do
 	rm -frv ${root}
-	mkdir -pv ${root}/etc
-	tar -C /etc -cvf - portage | tar -C ${root}/etc -xvf -
+	mkdir ${root}
+	tar -C / --exclude=usr/portage/distfiles \
+		--exclude=usr/portage/packages \
+		-cf - \
+		etc/portage var/lib/layman usr/portage \
+		| tar -C ${root} -xvf -
 done
 
 ROOT=${DEVROOT} emerge ${EMERGE_OPTS} -eKuDN @system @world
