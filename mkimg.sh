@@ -65,4 +65,4 @@ docker import - \
 
 docker push ${REPO}/${BASENAME}-dev:${TAG}
 docker push ${REPO}/${BASENAME}-rt:${TAG}
-docker images -q --filter dangling=true | xargs docker rmi
+( docker images -q --filter dangling=true | xargs docker rmi ) || true
