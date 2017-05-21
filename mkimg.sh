@@ -51,10 +51,18 @@ docker run --rm -v ${SNAPSHOT_DIR}/portage:/usr/portage \
 		${REPO}/${BASENAME}-raw:${TAG} \
 		/bin/bash -ex /tmp/work/mkimg-container.sh
 
-docker import - ${REPO}/${BASENAME}-dev:${TAG} \
+docker import \
+	-c "VOLUME /usr/portage" \
+	-c "VOLUME /var/lib/layman" \
+	- ${REPO}/${BASENAME}-dev:${TAG} \
 	< ${WORKDIR}/${BASENAME}-dev-${TAG}.tar
-docker import - ${REPO}/${BASENAME}-rt:${TAG} \
+
+docker import - \
+	-c "VOLUME /usr/portage" \
+	-c "VOLUME /var/lib/layman" \
+	${REPO}/${BASENAME}-rt:${TAG} \
 	< ${WORKDIR}/${BASENAME}-rt-${TAG}.tar
+
 docker push ${REPO}/${BASENAME}-dev:${TAG}
 docker push ${REPO}/${BASENAME}-rt:${TAG}
 docker images -q --filter dangling=true | xargs docker rmi
