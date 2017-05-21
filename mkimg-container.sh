@@ -37,15 +37,19 @@ emerge -evkuDN ${EMERGE_OPTS} @system @world
 for root in ${DEVROOT} ${RTROOT}; do
 	rm -frv ${root}
 	mkdir ${root}
-	tar -C / --exclude=usr/portage/distfiles \
-		--exclude=usr/portage/packages \
-		-cf - \
-		etc/portage var/lib/layman usr/portage \
+	tar -C / -cf - \
+		etc/portage \
 		| tar -C ${root} -xvf -
 done
 
 ROOT=${DEVROOT} emerge ${EMERGE_OPTS} -eKuDN @system @world
 
+# Include the portage tree and binary packages in the development environment
+# (In case they are needed later for installing in the runtime.)
+tar -C / --exclude=usr/portage/distfiles \
+	-cf - usr/portage var/lib/layman | tar -C ${DEVROOT} -xvf -
+
+# Bundle up the development environment
 tar -C ${DEVROOT} -cvf /tmp/work/${BASENAME}-dev-${TAG}.tar .
 chown -R ${OUT_UID}:${OUT_GID} /tmp/work/${BASENAME}-dev-${TAG}.tar /usr/portage/packages
 rm -fr ${DEVROOT}
@@ -95,13 +99,15 @@ ROOT=${RTROOT} emerge ${EMERGE_OPTS} -eKuDN1 \
 	'sys-process/psmisc' \
 	'sys-apps/sed' \
 	'sys-apps/which' \
+	'sys-apps/util-linux' \
 	'virtual/libc' \
 	'virtual/package-manager' \
 	'virtual/service-manager' \
-	'sys-apps/util-linux'
+	'virtual/shadow'
 
 # Clean up, because Portage ignores INSTALL_MASK sometimes.
-rm -frv ${RTROOT}/usr/include ${RTROOT}/usr/share/man ${RTROOT}/usr/share/info ${RTROOT}/usr/share/doc
+rm -frv ${RTROOT}/usr/include ${RTROOT}/usr/share/man \
+	${RTROOT}/usr/share/info ${RTROOT}/usr/share/doc
 find ${RTROOT} -name \*.a -print -delete
 find ${RTROOT} -name \*.o -print -delete
 find ${RTROOT} -name \*.h -print -delete
