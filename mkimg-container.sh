@@ -46,12 +46,12 @@ ROOT=${DEVROOT} emerge ${EMERGE_OPTS} -eKuDN @system @world
 
 # Include the portage tree and binary packages in the development environment
 # (In case they are needed later for installing in the runtime.)
-tar -C / --exclude=usr/portage/distfiles \
-	-cf - usr/portage var/lib/layman | tar -C ${DEVROOT} -xvf -
+tar -C / --exclude=var/cache/distfiles \
+	-cf - var/db/repos/gentoo var/lib/layman | tar -C ${DEVROOT} -xvf -
 
 # Bundle up the development environment
 tar -C ${DEVROOT} -cvf /tmp/work/${BASENAME}-dev-${TAG}.tar .
-chown -R ${OUT_UID}:${OUT_GID} /tmp/work/${BASENAME}-dev-${TAG}.tar /usr/portage/packages
+chown -R ${OUT_UID}:${OUT_GID} /tmp/work/${BASENAME}-dev-${TAG}.tar /var/cache/binpkgs
 rm -fr ${DEVROOT}
 
 INSTALL_MASK=""

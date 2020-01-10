@@ -33,14 +33,14 @@ DISTDIR=$( portageq distdir )
 
 if [ ! -d "${SNAPSHOT_DIR}" ]; then
 	mkdir -pv "${SNAPSHOT_DIR}"
-	tar -C "${SNAPSHOT_DIR}" -xjf "${SRC_SNAPSHOT}"
+	tar -C "${SNAPSHOT_DIR}" -xf "${SRC_SNAPSHOT}"
 fi
 
 mkdir -pv ${PKGDIR}
 bzcat ${SRC_STAGE3} | docker import - ${REPO}/${BASENAME}-raw:${TAG}
-docker run --rm -v ${SNAPSHOT_DIR}/portage:/usr/portage \
-		-v ${DISTDIR}:/usr/portage/distfiles \
-		-v ${PKGDIR}:/usr/portage/packages \
+docker run -it --rm -v ${SNAPSHOT_DIR}/portage:/var/db/repos/gentoo \
+		-v ${DISTDIR}:/var/cache/distfiles \
+		-v ${PKGDIR}:/var/cache/binpkgs\
 		-v ${WORKDIR}:/tmp/work \
 		-e BASENAME=${BASENAME} \
 		-e TAG=${TAG} \
@@ -49,16 +49,16 @@ docker run --rm -v ${SNAPSHOT_DIR}/portage:/usr/portage \
 		-e EMERGE_OPTS="${EMERGE_OPTS}" \
 		--privileged \
 		${REPO}/${BASENAME}-raw:${TAG} \
-		/bin/bash -ex /tmp/work/mkimg-container.sh
+    /bin/bash -ex /tmp/work/mkimg-container.sh
 
 docker import \
-	-c "VOLUME /usr/portage" \
+	-c "VOLUME /var/db/repos/gentoo" \
 	-c "VOLUME /var/lib/layman" \
 	- ${REPO}/${BASENAME}-dev:${TAG} \
 	< ${WORKDIR}/${BASENAME}-dev-${TAG}.tar
 
 docker import - \
-	-c "VOLUME /usr/portage" \
+	-c "VOLUME /var/db/repos/gentoo" \
 	-c "VOLUME /var/lib/layman" \
 	${REPO}/${BASENAME}-rt:${TAG} \
 	< ${WORKDIR}/${BASENAME}-rt-${TAG}.tar
